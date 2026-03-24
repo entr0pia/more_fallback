@@ -1,0 +1,500 @@
+# 代理集合 (订阅链接)
+proxy-providers:
+  subscription:
+    type: http
+    url: "你的订阅链接"
+    interval: 43600
+    path: ./proxy_provider/sub1.yaml
+    header:
+      User-Agent:
+      - "mihomo/1.18.3"
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+    override:
+      tfo: false
+
+# 基础配置
+port: 7890
+redir-port: 9797
+tproxy-port: 9898
+allow-lan: true
+external-controller: 127.0.0.1:9090
+ipv6: false
+unified-delay: true
+client-fingerprint: chrome
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# -------------------------------------------------------------------
+# DNS 设置 (来自 overwrite.js)
+# -------------------------------------------------------------------
+dns:
+  enable: true
+  use-system-hosts: true
+  use-hosts: false
+  ipv6: false
+  enhanced-mode: redir-host
+  respect-rules: true
+  prefer-h3: false
+  default-nameserver:
+    - 119.29.29.29
+    - 223.5.5.5
+    - 123.125.81.6
+  proxy-server-nameserver:
+    - https://dns.pub/dns-query
+    - https://dns.alidns.com/dns-query
+    - 123.125.81.6
+  nameserver:
+    - tls://1.0.0.1
+    - tls://8.8.8.8
+    - https://dns.google/dns-query
+  nameserver-policy:
+    'services.googleapis.cn': 'https://dns.google/dns-query'
+    'geosite:googlefcm': 'https://dns.google/dns-query'
+    'dl.google.com': 'https://dns.pub/dns-query'
+    'geosite:cn':
+      - https://dns.alidns.com/dns-query
+      - https://dns.pub/dns-query
+      - https://9999.alidns.com/dns-query
+      - https://10000.alidns.com/dns-query
+
+# -------------------------------------------------------------------
+# 嗅探设置 (来自 overwrite.js)
+# -------------------------------------------------------------------
+sniffer:
+  enable: true
+  force-dns-mapping: false
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8000-9000]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - '+.v2ex.com'
+  skip-domain:
+    - 'Mijia Cloud'
+    - 'dlg.io.mi.com'
+    - '+.apple.com'
+  skip-src-address:
+    - '192.168.0.3/32'
+  skip-dst-address:
+    - '192.168.0.3/32'
+
+
+# -------------------------------------------------------------------
+# tun 配置
+# -------------------------------------------------------------------
+tun:
+  auto-detect-interface: true
+  auto-route: true
+  device: meta
+  dns-hijack: [any:53, tcp://any:53]
+  stack: mixed
+  strict-route: false
+  enable: true
+
+# -------------------------------------------------------------------
+# 代理分组
+# -------------------------------------------------------------------
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies: [自动选择, 故障转移, 冷门节点, 原生节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇺🇲 美国节点, 🇰🇷 韩国节点, 手动切换, DIRECT]
+
+  - name: 手动切换
+    type: select
+    use: [subscription]
+
+  - name: 自动选择
+    type: url-test
+    use: [subscription]
+    url: http://www.gstatic.com/generate_204
+    interval: 97
+    tolerance: 234
+
+  - name: 故障转移
+    type: fallback
+    use: [subscription]
+    url: http://www.gstatic.com/generate_204
+    interval: 97
+
+  - name: 冷门节点
+    type: fallback
+    use: [subscription]
+    filter: "(冷门)"
+    url: http://www.gstatic.com/generate_204
+    interval: 179
+
+  - name: 原生节点
+    type: fallback
+    use: [subscription]
+    filter: "(原生|家宽)"
+    url: http://www.gstatic.com/generate_204
+    interval: 179
+
+  - name: AI平台
+    type: select
+    proxies: [节点选择, 原生节点, 冷门节点, 🇸🇬 狮城节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇯🇵 日本节点, 🇺🇲 美国节点, 🇰🇷 韩国节点, 手动切换, DIRECT]
+
+  - name: 巴哈姆特
+    type: select
+    proxies: [🇨🇳 台湾节点, 节点选择, 故障转移, 手动切换, DIRECT]
+
+  - name: 哔哩哔哩
+    type: select
+    proxies: [全球直连, 🇨🇳 台湾节点, 🇭🇰 香港节点]
+
+  - name: Spotify
+    type: select
+    proxies: [DIRECT, 节点选择, 故障转移, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 手动切换]
+
+  - name: 国外媒体
+    type: select
+    proxies: [节点选择, 自动选择, 故障转移, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇺🇲 美国节点, 🇰🇷 韩国节点, 手动切换, DIRECT]
+
+  - name: 国内媒体
+    type: select
+    proxies: [DIRECT, 故障转移, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 手动切换]
+
+  - name: 谷歌FCM
+    type: select
+    proxies: [DIRECT, 节点选择, 故障转移, 🇺🇲 美国节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 手动切换]
+
+  - name: 纯净节点
+    type: select
+    proxies: [原生节点, 节点选择, 手动切换, 🇺🇲 美国节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点]
+
+  - name: 微软云盘
+    type: select
+    proxies: [DIRECT, 节点选择, 故障转移, 🇺🇲 美国节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 手动切换]
+
+  - name: 微软服务
+    type: select
+    proxies: [节点选择, DIRECT, 故障转移, 🇺🇲 美国节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 手动切换]
+
+  - name: 苹果服务
+    type: select
+    proxies: [DIRECT, 节点选择, 故障转移, 🇺🇲 美国节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 手动切换]
+
+  - name: 游戏平台
+    type: select
+    proxies: [节点选择, DIRECT, 故障转移, 🇺🇲 美国节点, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 手动切换]
+
+  - name: 网易音乐
+    type: select
+    proxies: [DIRECT, 节点选择, 故障转移, 自动选择]
+
+  - name: Github代理
+    type: select
+    proxies: [DIRECT, 节点选择, 自动选择, 故障转移]
+
+  - name: 全球直连
+    type: select
+    proxies: [DIRECT, 节点选择, 自动选择, 故障转移]
+
+  - name: 漏网之鱼
+    type: select
+    proxies: [节点选择, 自动选择, 故障转移, DIRECT, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇺🇲 美国节点, 🇰🇷 韩国节点, 手动切换]
+
+  - name: 🇭🇰 香港节点
+    type: url-test
+    use: [subscription]
+    filter: "(港|HK|Hong Kong)"
+    url: http://www.gstatic.com/generate_204
+    interval: 61
+    tolerance: 234
+
+  - name: 🇯🇵 日本节点
+    type: url-test
+    use: [subscription]
+    filter: "(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|[^-]日|JP|Japan)"
+    url: http://www.gstatic.com/generate_204
+    interval: 61
+    tolerance: 234
+
+  - name: 🇺🇲 美国节点
+    type: url-test
+    use: [subscription]
+    filter: "(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)"
+    url: http://www.gstatic.com/generate_204
+    interval: 61
+    tolerance: 234
+
+  - name: 🇨🇳 台湾节点
+    type: url-test
+    use: [subscription]
+    filter: "(台|新北|彰化|TW|Taiwan)"
+    url: http://www.gstatic.com/generate_204
+    interval: 61
+    tolerance: 234
+
+  - name: 🇸🇬 狮城节点
+    type: url-test
+    use: [subscription]
+    filter: "(新加坡|坡|狮城|SG|Singapore)"
+    url: http://www.gstatic.com/generate_204
+    interval: 61
+    tolerance: 234
+
+  - name: 🇰🇷 韩国节点
+    type: url-test
+    use: [subscription]
+    filter: "(KR|Korea|KOR|首尔|韩|韓)"
+    url: http://www.gstatic.com/generate_204
+    interval: 61
+    tolerance: 234
+
+# -------------------------------------------------------------------
+# 规则集 (已添加 format: text 以支持 ACL4SSR 原始列表)
+# -------------------------------------------------------------------
+rule-providers:
+  lan:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    path: ./ruleset/lan.txt
+    interval: 86400
+  unban:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
+    path: ./ruleset/unban.txt
+    interval: 86400
+  proxy_list:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/entr0pia/CN-IPX/master/proxy.list"
+    path: ./ruleset/proxy_list.txt
+    interval: 86400
+  direct_list:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/entr0pia/CN-IPX/master/direct.list"
+    path: ./ruleset/direct_list.txt
+    interval: 86400
+  google_fcm:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/GoogleFCM.list"
+    path: ./ruleset/google_fcm.txt
+    interval: 86400
+  fcm_ip:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/entr0pia/CN-IPX/refs/heads/master/fcm-ip.list"
+    path: ./ruleset/fcm_ip.txt
+    interval: 86400
+  github_proxy:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/entr0pia/CN-IPX/master/GithubProxy.list"
+    path: ./ruleset/github_proxy.txt
+    interval: 86400
+  google_cn:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
+    path: ./ruleset/google_cn.txt
+    interval: 86400
+  steam_cn:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
+    path: ./ruleset/steam_cn.txt
+    interval: 86400
+  bilibili_hmt:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/BilibiliHMT.list"
+    path: ./ruleset/bilibili_hmt.txt
+    interval: 86400
+  bilibili:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bilibili.list"
+    path: ./ruleset/bilibili.txt
+    interval: 86400
+  netease_music:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/NetEaseMusic.list"
+    path: ./ruleset/netease_music.txt
+    interval: 86400
+  china_media:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
+    path: ./ruleset/china_media.txt
+    interval: 86400
+  pure_needed:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/entr0pia/CN-IPX/master/PureNeeded.list"
+    path: ./ruleset/pure_needed.txt
+    interval: 86400
+  epic:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Epic.list"
+    path: ./ruleset/epic.txt
+    interval: 86400
+  origin:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Origin.list"
+    path: ./ruleset/origin.txt
+    interval: 86400
+  sony:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Sony.list"
+    path: ./ruleset/sony.txt
+    interval: 86400
+  steam:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Steam.list"
+    path: ./ruleset/steam.txt
+    interval: 86400
+  nintendo:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Nintendo.list"
+    path: ./ruleset/nintendo.txt
+    interval: 86400
+  bahamut:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bahamut.list"
+    path: ./ruleset/bahamut.txt
+    interval: 86400
+  spotify:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Spotify.list"
+    path: ./ruleset/spotify.txt
+    interval: 86400
+  ai:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/AI.list"
+    path: ./ruleset/ai.txt
+    interval: 86400
+  proxy_media:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list"
+    path: ./ruleset/proxy_media.txt
+    interval: 86400
+  onedrive:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/entr0pia/CN-IPX/master/OneDrive.list"
+    path: ./ruleset/onedrive.txt
+    interval: 86400
+  microsoft:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
+    path: ./ruleset/microsoft.txt
+    interval: 86400
+  apple:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
+    path: ./ruleset/apple.txt
+    interval: 86400
+  proxy_gfw:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list"
+    path: ./ruleset/proxy_gfw.txt
+    interval: 86400
+  china_domain:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+    path: ./ruleset/china_domain.txt
+    interval: 86400
+  china_company:
+    type: http
+    behavior: classical
+    format: text
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
+    path: ./ruleset/china_company.txt
+    interval: 86400
+
+# -------------------------------------------------------------------
+# 规则部分
+# -------------------------------------------------------------------
+rules:
+  - AND,((NETWORK,UDP),(DST-PORT,443),(RULE-SET,proxy_media)),REJECT
+  - DST-PORT,20000-65535,DIRECT
+  - GEOSITE,googlefcm,DIRECT
+  - RULE-SET,lan,全球直连
+  - RULE-SET,unban,全球直连
+  - RULE-SET,proxy_list,节点选择
+  - RULE-SET,direct_list,全球直连
+  - RULE-SET,google_fcm,谷歌FCM
+  - RULE-SET,fcm_ip,谷歌FCM
+  - RULE-SET,github_proxy,Github代理
+  - RULE-SET,google_cn,全球直连
+  - RULE-SET,steam_cn,全球直连
+  - RULE-SET,bilibili_hmt,哔哩哔哩
+  - RULE-SET,bilibili,哔哩哔哩
+  - RULE-SET,netease_music,网易音乐
+  - RULE-SET,china_media,国内媒体
+  - RULE-SET,pure_needed,纯净节点
+  - RULE-SET,epic,游戏平台
+  - RULE-SET,origin,游戏平台
+  - RULE-SET,sony,游戏平台
+  - RULE-SET,steam,游戏平台
+  - RULE-SET,nintendo,游戏平台
+  - RULE-SET,bahamut,巴哈姆特
+  - RULE-SET,spotify,Spotify
+  - RULE-SET,ai,AI平台
+  - RULE-SET,proxy_media,国外媒体
+  - RULE-SET,onedrive,微软云盘
+  - RULE-SET,microsoft,微软服务
+  - RULE-SET,apple,苹果服务
+  - RULE-SET,proxy_gfw,节点选择
+  - RULE-SET,china_domain,全球直连
+  - RULE-SET,china_company,全球直连
+  - GEOIP,CN,全球直连
+  - MATCH,漏网之鱼
