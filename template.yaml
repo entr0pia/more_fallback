@@ -26,7 +26,7 @@ unified-delay: true
 client-fingerprint: chrome
 profile:
   store-selected: true
-  store-fake-ip: true
+  store-fake-ip: false
 
 # -------------------------------------------------------------------
 # DNS 设置 (来自 overwrite.js)
@@ -42,7 +42,7 @@ dns:
   default-nameserver:
     - 119.29.29.29
     - 223.5.5.5
-    - 123.125.81.6
+    - 123.125.81.6 # 最近的运营商dns
   proxy-server-nameserver:
     - https://dns.pub/dns-query
     - https://dns.alidns.com/dns-query
@@ -60,6 +60,7 @@ dns:
       - https://dns.pub/dns-query
       - https://9999.alidns.com/dns-query
       - https://10000.alidns.com/dns-query
+  fallback: null
 
 # -------------------------------------------------------------------
 # 嗅探设置 (来自 overwrite.js)
@@ -101,6 +102,46 @@ tun:
   strict-route: false
   enable: true
 
+# -------------------------------------------------------------------
+# 规则部分
+# -------------------------------------------------------------------
+rules:
+  - AND,((NETWORK,UDP),(DST-PORT,443),(RULE-SET,proxy_media)),REJECT
+  - DST-PORT,6000-7999,DIRECT
+  - DST-PORT,9000-17999,DIRECT
+  - DST-PORT,19000-65535,DIRECT
+  - RULE-SET,lan,全球直连
+  - RULE-SET,unban,全球直连
+  - RULE-SET,proxy_list,节点选择
+  - RULE-SET,direct_list,全球直连
+  - RULE-SET,google_fcm,谷歌FCM
+  - RULE-SET,fcm_ip,谷歌FCM
+  - RULE-SET,github_proxy,Github代理
+  - RULE-SET,google_cn,全球直连
+  - RULE-SET,steam_cn,全球直连
+  - RULE-SET,bilibili_hmt,哔哩哔哩
+  - RULE-SET,bilibili,哔哩哔哩
+  - RULE-SET,netease_music,网易音乐
+  - RULE-SET,china_media,国内媒体
+  - RULE-SET,pure_needed,纯净节点
+  - RULE-SET,epic,游戏平台
+  - RULE-SET,origin,游戏平台
+  - RULE-SET,sony,游戏平台
+  - RULE-SET,steam,游戏平台
+  - RULE-SET,nintendo,游戏平台
+  - RULE-SET,bahamut,巴哈姆特
+  - RULE-SET,spotify,Spotify
+  - RULE-SET,ai,AI平台
+  - RULE-SET,proxy_media,国外媒体
+  - RULE-SET,onedrive,微软云盘
+  - RULE-SET,microsoft,微软服务
+  - RULE-SET,apple,苹果服务
+  - RULE-SET,proxy_gfw,节点选择
+  - RULE-SET,china_domain,全球直连
+  - RULE-SET,china_company,全球直连
+  - GEOIP,CN,全球直连
+  - MATCH,漏网之鱼
+  
 # -------------------------------------------------------------------
 # 代理分组
 # -------------------------------------------------------------------
@@ -459,43 +500,3 @@ rule-providers:
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
     path: ./ruleset/china_company.txt
     interval: 86400
-
-# -------------------------------------------------------------------
-# 规则部分
-# -------------------------------------------------------------------
-rules:
-  - AND,((NETWORK,UDP),(DST-PORT,443),(RULE-SET,proxy_media)),REJECT
-  - DST-PORT,6000-7999,DIRECT
-  - DST-PORT,9000-17999,DIRECT
-  - DST-PORT,19000-65535,DIRECT
-  - RULE-SET,lan,全球直连
-  - RULE-SET,unban,全球直连
-  - RULE-SET,proxy_list,节点选择
-  - RULE-SET,direct_list,全球直连
-  - RULE-SET,google_fcm,谷歌FCM
-  - RULE-SET,fcm_ip,谷歌FCM
-  - RULE-SET,github_proxy,Github代理
-  - RULE-SET,google_cn,全球直连
-  - RULE-SET,steam_cn,全球直连
-  - RULE-SET,bilibili_hmt,哔哩哔哩
-  - RULE-SET,bilibili,哔哩哔哩
-  - RULE-SET,netease_music,网易音乐
-  - RULE-SET,china_media,国内媒体
-  - RULE-SET,pure_needed,纯净节点
-  - RULE-SET,epic,游戏平台
-  - RULE-SET,origin,游戏平台
-  - RULE-SET,sony,游戏平台
-  - RULE-SET,steam,游戏平台
-  - RULE-SET,nintendo,游戏平台
-  - RULE-SET,bahamut,巴哈姆特
-  - RULE-SET,spotify,Spotify
-  - RULE-SET,ai,AI平台
-  - RULE-SET,proxy_media,国外媒体
-  - RULE-SET,onedrive,微软云盘
-  - RULE-SET,microsoft,微软服务
-  - RULE-SET,apple,苹果服务
-  - RULE-SET,proxy_gfw,节点选择
-  - RULE-SET,china_domain,全球直连
-  - RULE-SET,china_company,全球直连
-  - GEOIP,CN,全球直连
-  - MATCH,漏网之鱼
