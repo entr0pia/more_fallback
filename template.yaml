@@ -159,13 +159,14 @@ proxy-groups:
     use: [subscription]
     url: http://www.gstatic.com/generate_204
     interval: 97
-    tolerance: 234
+    tolerance: 123
+    timeout: 789
 
   - name: 故障转移
     type: fallback
     use: [subscription]
     url: http://www.gstatic.com/generate_204
-    interval: 97
+    interval: 179
     timeout: 789
 
   - name: 冷门节点
@@ -254,7 +255,7 @@ proxy-groups:
     filter: "(港|HK|Hong Kong)"
     url: http://www.gstatic.com/generate_204
     interval: 61
-    tolerance: 234
+    tolerance: 123
 
   - name: 🇯🇵 日本节点
     type: url-test
@@ -262,7 +263,7 @@ proxy-groups:
     filter: "(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|[^-]日|JP|Japan)"
     url: http://www.gstatic.com/generate_204
     interval: 61
-    tolerance: 234
+    tolerance: 123
 
   - name: 🇺🇲 美国节点
     type: url-test
@@ -270,7 +271,7 @@ proxy-groups:
     filter: "(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)"
     url: http://www.gstatic.com/generate_204
     interval: 61
-    tolerance: 234
+    tolerance: 123
 
   - name: 🇨🇳 台湾节点
     type: url-test
@@ -278,7 +279,7 @@ proxy-groups:
     filter: "(台|新北|彰化|TW|Taiwan)"
     url: http://www.gstatic.com/generate_204
     interval: 61
-    tolerance: 234
+    tolerance: 123
 
   - name: 🇸🇬 狮城节点
     type: url-test
@@ -286,7 +287,7 @@ proxy-groups:
     filter: "(新加坡|坡|狮城|SG|Singapore)"
     url: http://www.gstatic.com/generate_204
     interval: 61
-    tolerance: 234
+    tolerance: 123
 
   - name: 🇰🇷 韩国节点
     type: url-test
@@ -294,7 +295,7 @@ proxy-groups:
     filter: "(KR|Korea|KOR|首尔|韩|韓)"
     url: http://www.gstatic.com/generate_204
     interval: 61
-    tolerance: 234
+    tolerance: 123
 
 # -------------------------------------------------------------------
 # 规则集 (已添加 format: text 以支持 ACL4SSR 原始列表)
