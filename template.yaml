@@ -106,7 +106,7 @@ tun:
 # 规则部分
 # -------------------------------------------------------------------
 rules:
-  - AND,((NETWORK,UDP),(DST-PORT,443),(RULE-SET,proxy_media)),REJECT
+#  - AND,((NETWORK,UDP),(DST-PORT,443),(RULE-SET,proxy_media)),REJECT
   - DST-PORT,6000-7999,DIRECT
   - DST-PORT,9000-17999,DIRECT
   - DST-PORT,19000-65535,DIRECT
